@@ -1,0 +1,32 @@
+# Python virtual environments
+.venv/
+.venv*/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Flutter generated files
+**/.dart_tool/
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/coverage/
+
+# IDE files
+.idea/
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
