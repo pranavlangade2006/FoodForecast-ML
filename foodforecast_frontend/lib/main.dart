@@ -79,6 +79,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.dispose();
   }
 
+  // Test the Flutter-to-FastAPI connection without running a prediction.
+  Future<void> _testBackendConnection() async {
+    try {
+      final response = await ApiService.testConnection();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Connected: ${response['message'] ?? 'Backend is working!'}',
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Connection failed: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   // Call the FastAPI backend.
   Future<void> _runPrediction() async {
     final customers = int.tryParse(_customersController.text.trim());
@@ -330,6 +357,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onChanged: (value) => setState(() => _specialEvent = value),
           ),
           const SizedBox(height: 22),
+          SizedBox(
+            width: double.infinity,
+            height: 45,
+            child: OutlinedButton.icon(
+              onPressed: _testBackendConnection,
+              icon: const Icon(Icons.wifi_rounded),
+              label: const Text('Test Backend Connection'),
+            ),
+          ),
+          const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             height: 49,

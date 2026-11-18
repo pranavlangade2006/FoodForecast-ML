@@ -6,6 +6,42 @@ import 'package:http/http.dart' as http;
 class ApiService {
   static const String baseUrl = 'http://127.0.0.1:8000';
 
+  // ==========================================
+  // 1. TEST BACKEND CONNECTION
+  // ==========================================
+
+  static Future<Map<String, dynamic>> testConnection() async {
+    final uri = Uri.parse('$baseUrl/test-connection');
+
+    try {
+      final response = await http
+          .get(uri, headers: {'Accept': 'application/json'})
+          .timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+
+        if (decoded is Map<String, dynamic>) {
+          return decoded;
+        }
+
+        throw Exception('Unexpected response from backend.');
+      }
+
+      throw Exception(
+        'Connection failed (${response.statusCode}): ${response.body}',
+      );
+    } on TimeoutException {
+      throw Exception('Backend connection timed out.');
+    } on http.ClientException catch (e) {
+      throw Exception('Cannot connect to FastAPI: $e');
+    }
+  }
+
+  // ==========================================
+  // 2. PREDICT ALL RAW MATERIALS
+  // ==========================================
+
   static Future<Map<String, dynamic>> predictAll({
     required int expectedCustomers,
     required int reservations,
@@ -44,22 +80,19 @@ class ApiService {
           return decoded;
         }
 
-        throw Exception('Unexpected response from the API.');
+        throw Exception('Unexpected response from prediction API.');
       }
 
       throw Exception(
-        'API request failed (${response.statusCode}): '
+        'Prediction API failed (${response.statusCode}): '
         '${response.body}',
       );
     } on TimeoutException {
       throw Exception(
-        'The API request timed out. Check that FastAPI is running.',
+        'Prediction request timed out. Check that FastAPI is running.',
       );
-    } on http.ClientException catch (error) {
-      throw Exception(
-        'Could not connect to FastAPI. Check the server and CORS settings. '
-        '$error',
-      );
+    } on http.ClientException catch (e) {
+      throw Exception('Could not connect to FastAPI: $e');
     }
   }
 }
